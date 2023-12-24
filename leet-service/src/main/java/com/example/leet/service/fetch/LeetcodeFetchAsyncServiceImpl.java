@@ -1,12 +1,17 @@
 package com.example.leet.service.fetch;
 
 import com.example.leet.client.LeetcodeRestClient;
+import com.example.leet.dao.entity.SubscribedUser;
 import com.example.leet.objects.Contest;
 import com.example.leet.objects.ContestUserDetails;
+import com.example.leet.objects.bo.GraphQLPayload;
 import com.example.leet.objects.bo.GraphQLResponseBO;
+import com.example.leet.objects.bo.Variable;
 import com.example.leet.objects.converter.ContestDetailConverter;
 import com.example.leet.service.contest.ContestService;
+import com.example.leet.service.users.LCUserActivityService;
 import com.example.leet.utils.constants.ApplicationConstants;
+import com.example.leet.utils.constants.LeetcodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +26,24 @@ import java.util.List;
 
 @EnableAsync
 @Service
-public class RanksFetchAsyncServiceImpl implements RanksFetchAsyncService {
-	private static final Logger log = LoggerFactory.getLogger(RanksFetchAsyncServiceImpl.class);
+public class LeetcodeFetchAsyncServiceImpl implements LeetcodeFetchAsyncService {
+	private static final Logger log = LoggerFactory.getLogger(LeetcodeFetchAsyncServiceImpl.class);
 	
-	private final RanksFetchAsyncService ranksFetchAsyncService;
+	private final LeetcodeFetchAsyncService leetcodeFetchAsyncService;
 	private final LeetcodeRestClient leetcodeRestClient;
 	private final ContestService contestService;
+	private final LCUserActivityService lcUserActivityService;
 	
 	@Value("${async.threads.for.rank.fetch}")
     private int totalThreads;
     
     @Autowired
-	public RanksFetchAsyncServiceImpl(@Lazy RanksFetchAsyncService ranksFetchAsyncService,
-			LeetcodeRestClient leetcodeRestClient, ContestService contestService) {
-		this.ranksFetchAsyncService = ranksFetchAsyncService;
+	public LeetcodeFetchAsyncServiceImpl(@Lazy LeetcodeFetchAsyncService leetcodeFetchAsyncService,
+										 LeetcodeRestClient leetcodeRestClient, ContestService contestService, LCUserActivityService lcUserActivityService) {
+		this.leetcodeFetchAsyncService = leetcodeFetchAsyncService;
 		this.leetcodeRestClient = leetcodeRestClient;
 		this.contestService = contestService;
+		this.lcUserActivityService = lcUserActivityService;
 	}
 
 	@Override
@@ -52,7 +59,7 @@ public class RanksFetchAsyncServiceImpl implements RanksFetchAsyncService {
 
     /**
      * Method for scaling the ranks fetch process
-     * @param limit
+     * @param totalUsers
      */
     private void scalingFetchProcessInThreads(int totalUsers) {
     	log.info("Fetching leetcode contest ranks for {} users", totalUsers);
@@ -61,7 +68,7 @@ public class RanksFetchAsyncServiceImpl implements RanksFetchAsyncService {
     	int threadCount=1;
     	int startPageNo = 2;
     	while(threadCount <= totalThreads) {
-    		ranksFetchAsyncService.fetchRanksInBatches(startPageNo, threadCount == totalThreads ? limit : startPageNo+batcheSize-1);
+    		leetcodeFetchAsyncService.fetchRanksInBatches(startPageNo, threadCount == totalThreads ? limit : startPageNo+batcheSize-1);
     		startPageNo+=batcheSize;
     		threadCount++;
     	}
@@ -80,8 +87,21 @@ public class RanksFetchAsyncServiceImpl implements RanksFetchAsyncService {
 		contestService.saveContestRankList(ContestDetailConverter.dtoListToEntityList(contestUserDetails));
 		log.info("Rank fetch ended for batch from {} to {}", startPageNo, endPageNo);
 	}
-	
-	public GraphQLResponseBO getLCUserActivity(){
-		return null;
+
+	@Async
+	@Override
+	public void getLCUserActivity(SubscribedUser subscribedUser){
+		GraphQLPayload payload = new GraphQLPayload();
+		payload.setQuery(LeetcodeConstants.FETCH_USER_ACTIVITY_STRING);
+		Variable variable = new Variable();
+		variable.setFirst(20);
+		variable.setLimit(20);
+		variable.setSkip(0);
+		variable.setUsername(subscribedUser.getLeetcodeUsername());
+		variable.setOrderBy(LeetcodeConstants.NEWEST_TO_OLDEST_SORT_ORDER);
+		payload.setVariables(variable);
+
+		GraphQLResponseBO userActivityOnLeetcode = leetcodeRestClient.getLCUsersRecentActivity(payload);
+		lcUserActivityService.processSubscribedUserActivity(subscribedUser, userActivityOnLeetcode);
 	}
 }

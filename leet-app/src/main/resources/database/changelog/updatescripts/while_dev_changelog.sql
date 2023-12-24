@@ -26,3 +26,19 @@ CREATE TABLE subscriptions(
 
                               Primary key (app_user_id, leet_user_id)
 );
+
+-- changeset prashant:4
+-- preconditions onFail:MARK_RAN onError:HALT
+-- precondition-sql-check expectedResult:0 SELECT count(*) FROM pg_type where typname='activity'
+create type activity as enum ('DISCUSS','SOLUTION','SUBMISSION');
+
+-- changeset prashant:5
+-- preconditions onFail:MARK_RAN onError:HALT
+-- precondition-sql-check expectedResult:0 SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'public' AND TABLE_NAME = 'subscribed_user_activity';
+CREATE TABLE subscribed_user_activity(
+                              activity_id serial PRIMARY KEY,
+                              activity activity,
+                              last_activity int,
+                              subs_user smallint references subscribed_user(subs_user_id)
+
+);

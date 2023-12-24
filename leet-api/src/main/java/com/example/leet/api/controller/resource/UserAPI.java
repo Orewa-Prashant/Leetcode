@@ -22,9 +22,9 @@ public class UserAPI {
         return AppUserConverter.entityToDTO(userService.createUser(AppUserConverter.dtoToEntity(appUserDTO)));
     }
 
-    @PostMapping("follow/{username}")
-    public void subscribeUser(@PathVariable(name = "username")String username){
-        userService.subscribeToLeetCodeUser(username);
+    @PostMapping("follow/{username}/{userId}")
+    public void subscribeUser(@PathVariable(name = "username")String username, @PathVariable(name = "userId")Integer userId){
+        userService.subscribeToLeetCodeUser(username, userId);
     }
 
 }

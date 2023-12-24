@@ -8,4 +8,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Edge {
 
     private Node node;
+
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
 }

@@ -33,8 +33,8 @@ public class LeetcodeRestClient extends BaseRestClient{
                 LeetcodeConstants.QUERY_REGION+ApplicationConstants.EQUAL_DELIMITER+"global";
     }
 
-    public GraphQLResponseBO getLCUsersRecentActivity(String uri, Object request){
-        ResponseEntity<GraphQLResponseBO> response = getRestTemplate().postForEntity(uri, request, GraphQLResponseBO.class);
+    public GraphQLResponseBO getLCUsersRecentActivity(Object request){
+        ResponseEntity<GraphQLResponseBO> response = getRestTemplate().postForEntity(LeetcodeConstants.GRAPHQL_URL, request, GraphQLResponseBO.class);
         if(response.getStatusCode() == HttpStatus.OK){
             return response.getBody();
         } else {

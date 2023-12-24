@@ -12,6 +12,7 @@ public class SubscribedUser {
     private Integer subsUserId;
     private String leetcodeUsername;
     private Set<AppUser> appUsers;
+    private Set<SubscribedUserActivity> subscribedUserActivities;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,5 +42,14 @@ public class SubscribedUser {
 
     public void setAppUsers(Set<AppUser> appUsers) {
         this.appUsers = appUsers;
+    }
+
+    @OneToMany(mappedBy = "subscribedUser")
+    public Set<SubscribedUserActivity> getSubscribedUserActivities() {
+        return subscribedUserActivities;
+    }
+
+    public void setSubscribedUserActivities(Set<SubscribedUserActivity> subscribedUserActivities) {
+        this.subscribedUserActivities = subscribedUserActivities;
     }
 }

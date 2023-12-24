@@ -1,6 +1,8 @@
 package com.example.leet.cron.subscription;
 
-import com.example.leet.service.fetch.RanksFetchAsyncService;
+import com.example.leet.dao.entity.SubscribedUser;
+import com.example.leet.service.fetch.LeetcodeFetchAsyncService;
+import com.example.leet.service.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,15 +12,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotifyAboutSubscribedUsersJob {
 
-    private final RanksFetchAsyncService ranksFetchAsyncService;
+    private final LeetcodeFetchAsyncService leetcodeFetchAsyncService;
+    private final UserService userService;
 
     @Autowired
-    public NotifyAboutSubscribedUsersJob(RanksFetchAsyncService ranksFetchAsyncService){
+    public NotifyAboutSubscribedUsersJob(LeetcodeFetchAsyncService leetcodeFetchAsyncService, UserService userService){
 
-        this.ranksFetchAsyncService = ranksFetchAsyncService;
+        this.leetcodeFetchAsyncService = leetcodeFetchAsyncService;
+        this.userService = userService;
     }
-    @Scheduled(fixedDelay = 60 * 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 1000*10)
     public void fetchLeetcodeUsersInfo(){
-//        ranksFetchAsyncService.
+        for(SubscribedUser user : userService.getAllSubscribedUsers()){
+            leetcodeFetchAsyncService.getLCUserActivity(user);
+        }
     }
 }

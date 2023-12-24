@@ -9,9 +9,9 @@ public class Variable {
 
     private String username;
     private String orderBy;
-    private String skip;
-    private String first;
-    private String limit;
+    private Integer skip;
+    private Integer first;
+    private Integer limit;
 
     public String getUsername() {
         return username;
@@ -29,27 +29,27 @@ public class Variable {
         this.orderBy = orderBy;
     }
 
-    public String getSkip() {
+    public Integer getSkip() {
         return skip;
     }
 
-    public void setSkip(String skip) {
+    public void setSkip(Integer skip) {
         this.skip = skip;
     }
 
-    public String getFirst() {
+    public Integer getFirst() {
         return first;
     }
 
-    public void setFirst(String first) {
+    public void setFirst(Integer first) {
         this.first = first;
     }
 
-    public String getLimit() {
+    public Integer getLimit() {
         return limit;
     }
 
-    public void setLimit(String limit) {
+    public void setLimit(Integer limit) {
         this.limit = limit;
     }
 }

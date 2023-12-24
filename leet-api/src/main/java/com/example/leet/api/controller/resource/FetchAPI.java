@@ -5,22 +5,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.leet.service.fetch.RanksFetchAsyncService;
+import com.example.leet.service.fetch.LeetcodeFetchAsyncService;
 
 @RestController
 @RequestMapping("rest/fetch")
 public class FetchAPI {
 	
-	private final RanksFetchAsyncService ranksFetchAsyncService;
+	private final LeetcodeFetchAsyncService leetcodeFetchAsyncService;
 
 	@Autowired
-	public FetchAPI(RanksFetchAsyncService ranksFetchAsyncService) {
-		this.ranksFetchAsyncService = ranksFetchAsyncService;
+	public FetchAPI(LeetcodeFetchAsyncService leetcodeFetchAsyncService) {
+		this.leetcodeFetchAsyncService = leetcodeFetchAsyncService;
 	}
 	
 	@GetMapping("ranks")
 	public void fetchRanks() {
-		ranksFetchAsyncService.fetchContestDetails();
+		leetcodeFetchAsyncService.fetchContestDetails();
 	}
 	
 }
