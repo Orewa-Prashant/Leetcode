@@ -24,7 +24,7 @@ public class MailServiceImpl implements MailService{
     }
 
     @Override
-    public void notifyAboutSubscribedUsers(SubscribedUser subscribedUser, List<Object> postsToNotify) {
+    public void notifyAboutSubscribedUsers(SubscribedUser subscribedUser, Object postsToNotify) {
         mailSender.sendNotification(subscribedUser, postsToNotify);
     }
 }

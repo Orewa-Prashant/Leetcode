@@ -7,6 +7,8 @@ import com.example.leet.dao.repo.SubscribedUserActivityRepository;
 import com.example.leet.dao.repo.SubscribedUserRepository;
 import com.example.leet.objects.bo.*;
 import com.example.leet.service.mail.MailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,6 +20,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class LCUserActivtyServiceImpl implements LCUserActivityService{
 
+    private final Logger log = LoggerFactory.getLogger(LCUserActivtyServiceImpl.class);
     private final SubscribedUserActivityRepository subscribedUserActivityRepository;
     private final SubscribedUserRepository subscribedUserRepository;
     private final MailService mailService;
@@ -54,20 +57,24 @@ public class LCUserActivtyServiceImpl implements LCUserActivityService{
             subscribedUserActivity.setActivity(Activity.SUBMISSION);
             savingInfoForFirstTime = true;
         }
+        long lastActivity = null == subscribedUserActivity.getLastActivity() ? 0 : subscribedUserActivity.getLastActivity();
         List<LCUserAcSolution> solutionsToNotify = new ArrayList<>();
         if(null != recentAcSubmissionList && !recentAcSubmissionList.isEmpty()){
             for(LCUserAcSolution acceptedSolution : recentAcSubmissionList){
-                if(null == subscribedUserActivity.getLastActivity() || subscribedUserActivity.getLastActivity()<Long.parseLong(acceptedSolution.getId())){
-                    subscribedUserActivity.setLastActivity(Long.parseLong(acceptedSolution.getId()));
+                if(lastActivity < Long.parseLong(acceptedSolution.getId())){
                     solutionsToNotify.add(acceptedSolution);
-                }
+                } else break;
             }
+            subscribedUserActivity.setLastActivity(Long.parseLong(recentAcSubmissionList.get(0).getId()));
         }
         if(savingInfoForFirstTime){
             subscribedUserActivityRepository.save(subscribedUserActivity);
+            return;
         }
-        if(!savingInfoForFirstTime && !solutionsToNotify.isEmpty()){
-            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), Collections.singletonList(solutionsToNotify));
+        if(!solutionsToNotify.isEmpty()){
+            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), solutionsToNotify);
+        } else{
+            log.info("No posts to notify for {}", subscribedUser.getLeetcodeUsername());
         }
     }
 
@@ -80,20 +87,24 @@ public class LCUserActivtyServiceImpl implements LCUserActivityService{
             subscribedUserActivity.setActivity(Activity.SOLUTION);
             savingInfoForFirstTime = true;
         }
+        long lastActivity = null == subscribedUserActivity.getLastActivity() ? 0 : subscribedUserActivity.getLastActivity();
         List<Node> solutionPostsToNotify = new ArrayList<>();
         if(null != userSolutionTopics && null!=userSolutionTopics.getEdges() && !userSolutionTopics.getEdges().isEmpty()){
             for(Edge userSolutionPostEdge : userSolutionTopics.getEdges()){
-                if(null == subscribedUserActivity.getLastActivity() || subscribedUserActivity.getLastActivity()<Long.parseLong(userSolutionPostEdge.getNode().getId())){
-                    subscribedUserActivity.setLastActivity(Long.parseLong(userSolutionPostEdge.getNode().getId()));
+                if(lastActivity < Long.parseLong(userSolutionPostEdge.getNode().getId())){
                     solutionPostsToNotify.add(userSolutionPostEdge.getNode());
-                }
+                } else break;
             }
+            subscribedUserActivity.setLastActivity(Long.parseLong(userSolutionTopics.getEdges().get(0).getNode().getId()));
         }
         if(savingInfoForFirstTime){
             subscribedUserActivityRepository.save(subscribedUserActivity);
+            return;
         }
-        if(!savingInfoForFirstTime && !solutionPostsToNotify.isEmpty()){
-            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), Collections.singletonList(solutionPostsToNotify));
+        if(!solutionPostsToNotify.isEmpty()){
+            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), solutionPostsToNotify);
+        } else{
+            log.info("No posts to notify for {}", subscribedUser.getLeetcodeUsername());
         }
     }
 
@@ -106,20 +117,24 @@ public class LCUserActivtyServiceImpl implements LCUserActivityService{
             subscribedUserActivity.setActivity(Activity.DISCUSS);
             savingInfoForFirstTime = true;
         }
+        long lastActivity = null == subscribedUserActivity.getLastActivity() ? 0 : subscribedUserActivity.getLastActivity();
         List<Node> discussPostsToNotify = new ArrayList<>();
         if(null != userCategoryTopics && null!=userCategoryTopics.getEdges() && !userCategoryTopics.getEdges().isEmpty()){
             for(Edge userSolutionPostEdge : userCategoryTopics.getEdges()){
-                if(null == subscribedUserActivity.getLastActivity() || subscribedUserActivity.getLastActivity()<Long.parseLong(userSolutionPostEdge.getNode().getId())){
-                    subscribedUserActivity.setLastActivity(Long.parseLong(userSolutionPostEdge.getNode().getId()));
+                if(lastActivity<Long.parseLong(userSolutionPostEdge.getNode().getId())){
                     discussPostsToNotify.add(userSolutionPostEdge.getNode());
-                }
+                } else break;
             }
+            subscribedUserActivity.setLastActivity(Long.parseLong(userCategoryTopics.getEdges().get(0).getNode().getId()));
         }
         if(savingInfoForFirstTime){
             subscribedUserActivityRepository.save(subscribedUserActivity);
+            return;
         }
-        if(!savingInfoForFirstTime && !discussPostsToNotify.isEmpty()){
-            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), Collections.singletonList(discussPostsToNotify));
+        if(!discussPostsToNotify.isEmpty()){
+            mailService.notifyAboutSubscribedUsers(subscribedUserActivity.getSubscribedUser(), discussPostsToNotify);
+        } else{
+            log.info("No posts to notify for {}", subscribedUser.getLeetcodeUsername());
         }
     }
 

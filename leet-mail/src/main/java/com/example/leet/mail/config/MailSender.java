@@ -9,5 +9,5 @@ public interface MailSender {
 
     void sendTextMail();
 
-    void sendNotification(SubscribedUser subscribedUser, List<Object> postsToNotify);
+    void sendNotification(SubscribedUser subscribedUser, Object postsToNotify);
 }

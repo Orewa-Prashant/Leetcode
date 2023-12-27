@@ -10,7 +10,7 @@ public class Node {
     private String id;
     private String title;
     private String url;
-    private String quetionTitle;
+    private String questionTitle;
 
     public String getId() {
         return id;
@@ -36,11 +36,11 @@ public class Node {
         this.url = url;
     }
 
-    public String getQuetionTitle() {
-        return quetionTitle;
+    public String getQuestionTitle() {
+        return questionTitle;
     }
 
-    public void setQuetionTitle(String quetionTitle) {
-        this.quetionTitle = quetionTitle;
+    public void setQuestionTitle(String questionTitle) {
+        this.questionTitle = questionTitle;
     }
 }

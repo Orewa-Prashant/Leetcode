@@ -9,5 +9,5 @@ public interface MailService {
 
     void sendDummyMail();
 
-    void notifyAboutSubscribedUsers(SubscribedUser subscribedUser, List<Object> discussPostsToNotify);
+    void notifyAboutSubscribedUsers(SubscribedUser subscribedUser, Object discussPostsToNotify);
 }
