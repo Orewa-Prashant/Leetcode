@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("rest/notifiaction")
+@RequestMapping("rest/notification")
 public class NotificationAPI {
 
     private final NotficationService notficationService;
@@ -26,6 +26,7 @@ public class NotificationAPI {
             notificationDTO.setNotificationDTOS(NotificationStackConverter.entityCollectionToDtoCollection(stack.getContent()));
 //            notificationDTO.se
         } catch (Exception e){
+            e.printStackTrace();
             throw new ServiceException("Some error occured, please try again");
         }
         return notificationDTO;
