@@ -42,3 +42,14 @@ CREATE TABLE subscribed_user_activity(
                               subs_user smallint references subscribed_user(subs_user_id)
 
 );
+
+-- changeset prashant:6
+-- preconditions onFail:MARK_RAN onError:HALT
+-- precondition-sql-check expectedResult:0 SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'public' AND TABLE_NAME = 'notification_stack';
+CREATE TABLE notification_stack(
+                                         id bigserial PRIMARY KEY,
+                                         description varchar(200),
+                                         link varchar(200),
+                                         app_user_id int references app_user(app_user_id),
+                                         is_opened Boolean
+);
